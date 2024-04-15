@@ -1,75 +1,84 @@
+"""
+
+Abstraction layer for camera operations including rotation and image capture
+
+authors: nathanielhayman@gmail.com
+
+"""
+
 import RPi.GPIO as GPIO
 import time
 import argparse
 import cv2
-import numpy
+import numpy as np
 from picamera2 import Picamera2
 
-
-PIN_SERVO_MAJOR = 33
-PIN_SERVO_MINOR = 32
-
-PWM_PIN_SERVO_MAJOR = 5
-PWM_PIN_SERVO_MINOR = 5
-
-servo_major = None
-servo_minor = None
-
-cam_servos = []
-
-cam = None
-
-def init():
-    global cam, cam_servos, servo_major, servo_minor
-    
-    cam = Picamera2()
-    cam.start()
-    
-    print(cam)
-    
-    GPIO.setup(PIN_SERVO_MAJOR, GPIO.OUT)
-    GPIO.setup(PIN_SERVO_MINOR, GPIO.OUT)
-    
-    servo_major = GPIO.PWM(PIN_SERVO_MAJOR, 50)
-    servo_minor = GPIO.PWM(PIN_SERVO_MINOR, 50)
-    
-    servo_major.start(PWM_PIN_SERVO_MAJOR)
-    servo_minor.start(PWM_PIN_SERVO_MINOR)
-    
-    cam_servos = [servo_major, servo_minor]
+from constants import PIN_SERVO_MAJOR, PIN_SERVO_MINOR, PWM_PIN_SERVO_MAJOR, 
+                      PWM_PIN_SERVO_MINOR
 
 
-# Rotates camera servos by `angle` degrees
-def swivel(component, angle):
-    pwm = compute_delta(angle)
+class Camera:
     
-    if component < 0 or component > len(cam_servos):
-        print(f"ERROR: unknown camera rotation component {component}! \
-                valid components lie in the range 0->{len(cam_servos)}")
+    def __init__(self):
+        self.cam = Picamera2()
+        self.cam.start()
+        
+        print(cam)
+        
+        GPIO.setup(PIN_SERVO_MAJOR, GPIO.OUT)
+        GPIO.setup(PIN_SERVO_MINOR, GPIO.OUT)
+        
+        self.servo_major = GPIO.PWM(PIN_SERVO_MAJOR, 50)
+        self.servo_minor = GPIO.PWM(PIN_SERVO_MINOR, 50)
+        
+        self.servo_major.start(PWM_PIN_SERVO_MAJOR)
+        self.servo_minor.start(PWM_PIN_SERVO_MINOR)
+        
+        self.cam_servos = [servo_major, servo_minor]
     
-    cam_servos[component].ChangeDutyCycle(pwm)
+    
+    # Rotates camera viewport by `angle` degrees
+    def swivel(angle):
+        # TODO: create a protocol for rotating the indivudal servos
+        # in the camera dual-servo
+        granular_swivel(0, angle)
+        granular_swivel(1, angle)
+        
+    
+    def granular_swivel(component, angle):
+        
+        if component < 0 or component > len(cam_servos):
+            print(f"ERROR: unknown camera rotation component {component}! \
+                    valid components lie in the range 0->{len(cam_servos)}")
+        
+        pwm = compute_delta(angle)
+        
+        self.cam_servos[component].ChangeDutyCycle(pwm)
 
-# Captures an image with the camera and uploads it to
-# `./captures/capture<x.x>.png` as well as `./recent_capture.png`.
-#
-# Implicitly archives previous capture
-def capture_image(is_termination, itr):
-    array = cam.capture_array("main")
-    arraybgr = cv2.cvtColor(array, cv2.COLOR_RGB2BGR)
-    
-    fname = f"capture_{is_termination}.png"
-    
-    cv2.imwrite(fname, arraybgr)
-    cv2.imwrite("captures/"+fname, arraybgr)
-    
 
-def compute_delta(theta):
-    return
-
-def destroy():
-    global cam
+    def compute_delta(theta):
+        # TODO: determine appropriate theta -> PWM formula based
+        # on servo responsiveness
+        return -1
     
-    cam.stop()
-    servo_major.stop()
-    servo_minor.stop()
+    
+    # Captures an image with the camera and uploads it to
+    # `./captures/history/capture_<t>_<i>.png` as well as
+    # `./captures/recent_capture_<t>.png`.
+    #
+    # Implicitly archives previous capture
+    def capture_image(is_termination, itr):
+        array = cam.capture_array("main")
+        arraybgr = cv2.cvtColor(array, cv2.COLOR_RGB2BGR)
+        
+        fname = 
+        
+        cv2.imwrite(f"captures/history/capture_{is_termination}_{itr % 10}.png", arraybgr)
+        cv2.imwrite("captures/f"capture_{is_termination}.png""+fname, arraybgr)
+
+
+    def __del__(self):
+        cam.stop()
+        servo_major.stop()
+        servo_minor.stop()
     
