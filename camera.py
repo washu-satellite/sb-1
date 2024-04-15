@@ -71,8 +71,6 @@ class Camera:
         array = cam.capture_array("main")
         arraybgr = cv2.cvtColor(array, cv2.COLOR_RGB2BGR)
         
-        fname = 
-        
         cv2.imwrite(f"captures/history/capture_{is_termination}_{itr % 10}.png", arraybgr)
         cv2.imwrite("captures/f"capture_{is_termination}.png""+fname, arraybgr)
 
