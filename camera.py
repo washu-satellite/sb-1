@@ -40,7 +40,7 @@ class Camera:
     # Rotates camera viewport by `angle` degrees
     def swivel(angle):
         # TODO: create a protocol for rotating the indivudal servos
-        # in the camera dual-servo
+        # in the camera dual-servo system
         granular_swivel(0, angle)
         granular_swivel(1, angle)
         
