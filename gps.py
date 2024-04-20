@@ -26,7 +26,7 @@ class GPSController:
     def data_snapshot(self):
         data = self.serial.readline()
         
-        if data[0:6] == b'$GPRMC':
+        if data[0:6] == b'$GPGGA':
             #changes that may or not may work, keeping the original code commented out below
             split_data = data.decode('utf-8').split(",")
             lat=split_data[GPSController.LATITUDE_INDEX]
