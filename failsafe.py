@@ -3,18 +3,20 @@ import time
 import sys
 import select
 from gps import GPSController
+from servo import Servo
+from constants import PIN_SERVO_MAJOR,PIN_SERVO_MINOR
 
 COUNTDOWN_SECONDS=15
 listAverageSize=10
-LAT_MIN=0.1
-LAT_MAX=2.9
-LONG_MIN=0.1
-LONG_MAX=2.9
-ALT_MAX=2.9
 curListIndex=0
-latList = [(LAT_MIN+LAT_MAX)/2]*listAverageSize
-longList = [(LONG_MIN+LONG_MAX)/2]*listAverageSize
-altList = [ALT_MAX]*listAverageSize
+latList = [0]*listAverageSize
+longList = [0]*listAverageSize
+altList = [0]*listAverageSize
+servoPan = Servo(PIN_SERVO_MAJOR, 20)
+servoTilt = Servo(PIN_SERVO_MINOR, 20)
+latVariance=0.01
+longVariance=0.01
+
 GPS= GPSController()
 def getPositionData():
     return GPS.data_snapshot()
@@ -25,9 +27,25 @@ def activateFailsafe():
     print(" |     _` |  |  |   __|   _` |  |     _ \\ ")
     print(" _|   (   |  |  | \__ \\  (   |  _|    __/ ")
     print("_|   \\__._| _| _| ____/ \\__._| _|   \\___|")
+for i in range(listAverageSize):
+    while(True):
+        lat,long,alt = getPositionData()
+        if lat is not None:
+            latList[i]=lat
+            longList[i]=long
+            altList[i]=alt
+            print(f"{i+1}/{listAverageSize}")
+            break
+LAT_MIN=sum(latList)/listAverageSize-latVariance
+LAT_MAX=sum(latList)/listAverageSize+latVariance
+LONG_MIN=sum(latList)/listAverageSize-longVariance
+LONG_MAX=sum(latList)/listAverageSize+longVariance
+ALT_MAX=150
+print(f"bounding box lat: {LAT_MIN}-{LAT_MAX} long: {LONG_MIN}-{LONG_MAX} alt: {ALT_MAX}")
+        
 while(True):
     lat,long,alt = getPositionData()
-    if lat:
+    if lat is not None:
         curListIndex+=1
         if(curListIndex>=listAverageSize):
             curListIndex=0
@@ -60,16 +78,37 @@ while(True):
                 if input_line.lower() == 'c':
                     print("Failsafe Aborted")
                     break
-    sys.stdout.write(f"\rEnter 'k' to manually activate failsafe, 'g' to give gimbal commands: ")
+    
+    sys.stdout.write(f"\rEnter 'k' to manually activate failsafe, 'pan/tilt <degrees>' to pan/tilt: ")
     rlist, _, _ = select.select([sys.stdin], [], [], 1)
     if rlist:
-        input = sys.stdin.readline().strip()
-        match input.lower():
-            case 'k':
-                activateFailsafe()
-            case 'g':
-                #feijioef
-                print("doing gimbal things")
-            case _:
-                print("invalid input")
-    time.sleep(.2)
+        input = sys.stdin.readline().strip().lower()
+        if input == 'k':
+            activateFailsafe()
+        elif len(input)>4 and input[0:4].lower()=='pan ':
+            deltaAngle=0
+            try:
+                deltaAngle = float(input.split(" ")[1])
+            except ValueError:
+                print("input a number goofy ahh individual")
+                continue
+            servoPan.swivel(deltaAngle)
+            print('panned '+str(deltaAngle))
+        elif len(input)>5 and input[0:5].lower()=='tilt ':
+            deltaAngle=0
+            try:
+                deltaAngle = float(input.split(" ")[1])
+            except ValueError:
+                print("input a number goofy ahh individual")
+                continue
+            servoTilt.swivel(deltaAngle)
+            print('tilted '+str(deltaAngle))
+        #match input.lower():
+         #   case 'k':
+          #      activateFailsafe()
+           # case 'g':
+            #    #feijioef
+             #   print("doing gimbal things")
+            #case _:
+              #  print("invalid input")
+    #time.sleep(.2)

@@ -8,22 +8,25 @@ authors: nathanielhayman@gmail.com
 
 
 import time
-
+import RPi.GPIO as GPIO
+import argparse
 from constants import DELAY_CAM_CAPTURE
+from camera import Camera
+from servo import Servo
 
 
 class Controller:
     
-    __init__(self):
+    def __init__(self):
         GPIO.setmode(GPIO.BOARD)
         GPIO.setwarnings(False)
         
-        self.args = parse_arguments()
+        self.args = self.parse_arguments()
         
         self.camera = Camera()
     
     
-    def parse_arguments():
+    def parse_arguments(self):
         parser = argparse.ArgumentParser()
         
         parser.add_argument("--debug", action="store_true")
@@ -35,19 +38,19 @@ class Controller:
         return parser.parse_args()
     
     
-    def iterate():
+    def iterate(self):
         start_time = time.time()
         cur_time = start_time
 
         last_cam_capture = start_time
         itr = 0
 
-        while cur_time < start_time + args.tim:
+        while cur_time < start_time + self.args.tim:
             cur_time = time.time()
             
             if last_cam_capture + DELAY_CAM_CAPTURE < cur_time:
                 
-                if args.debug:
+                if self.args.debug:
                     print("IMAGE TAKEN")
                 
                 self.camera.capture_image(False, itr)
@@ -58,4 +61,5 @@ class Controller:
                 
     
     def __del__(self):
-        camera.destroy()
+        del self.camera
+

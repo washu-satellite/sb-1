@@ -25,16 +25,18 @@ class GPSController:
     # Captures a snapshot of various data from serial stream
     def data_snapshot(self):
         data = self.serial.readline()
-        
-        if data[0:6] == b'$GPRMC':
+        if data[0:6] == b'$GPGGA':
             #changes that may or not may work, keeping the original code commented out below
             split_data = data.decode('utf-8').split(",")
-            lat=split_data[GPSController.LATITUDE_INDEX]
-            long=split_data[GPSController.LONGITUDE_INDEX]
-            alt=split_data[GPSController.ALTITUDE_INDEX]
-
+            lat=float(split_data[2])
+            long=float(split_data[4])
+            alt=float(split_data[9])
+            print("long: ")
+            print(long)
             return lat,long,alt
-            # msg = pynmea2.parse(data)
+            #msg = pynmea2.parse(data)
             
             # return {"lat": msg.latitude, "lng": msg.longitude}
         return None, None, None
+
+
