@@ -16,7 +16,6 @@ servoPan = Servo(PIN_SERVO_MAJOR, 20)
 servoTilt = Servo(PIN_SERVO_MINOR, 20)
 latVariance=0.01
 longVariance=0.01
-
 GPS= GPSController()
 def getPositionData():
     return GPS.data_snapshot()
@@ -42,7 +41,7 @@ LONG_MIN=sum(latList)/listAverageSize-longVariance
 LONG_MAX=sum(latList)/listAverageSize+longVariance
 ALT_MAX=150
 print(f"bounding box lat: {LAT_MIN}-{LAT_MAX} long: {LONG_MIN}-{LONG_MAX} alt: {ALT_MAX}")
-        
+
 while(True):
     lat,long,alt = getPositionData()
     if lat is not None:
