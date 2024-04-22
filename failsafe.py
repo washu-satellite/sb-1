@@ -4,7 +4,7 @@ import sys
 import select
 from gps import GPSController
 from servo import Servo
-from constants import PIN_SERVO_MAJOR,PIN_SERVO_MINOR
+from constants import PIN_SERVO_MAJOR,PIN_SERVO_MINOR, SERVO_MAX_DUTY, SERVO_MIN_DUTY
 
 COUNTDOWN_SECONDS=15
 listAverageSize=10
@@ -12,8 +12,17 @@ curListIndex=0
 latList = [0]*listAverageSize
 longList = [0]*listAverageSize
 altList = [0]*listAverageSize
-servoPan = Servo(PIN_SERVO_MAJOR, 20)
-servoTilt = Servo(PIN_SERVO_MINOR, 20)
+servoPan = Servo(PIN_SERVO_MAJOR, (SERVO_MAX_DUTY + SERVO_MIN_DUTY)/2)
+servoTilt = Servo(PIN_SERVO_MINOR, (SERVO_MAX_DUTY + SERVO_MIN_DUTY)/2)
+
+# TEMP: TESTING SERVO FUNCTION
+time.sleep(0.05)
+servoPan.swivel(5)
+time.sleep(0.05)
+servoPan.swivel(-5)
+time.sleep(0.05)
+# END TEST
+
 latVariance=0.01
 longVariance=0.01
 GPS= GPSController()

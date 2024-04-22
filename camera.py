@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 from picamera2 import Picamera2
 
-from constants import PIN_SERVO_MAJOR, PIN_SERVO_MINOR, PWM_PIN_SERVO_MAJOR, PWM_PIN_SERVO_MINOR
+from constants import PIN_SERVO_MAJOR, PIN_SERVO_MINOR
 
 
 class Camera:
