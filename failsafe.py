@@ -3,7 +3,7 @@ import sys
 import select
 from gps import GPSController
 from servo import Servo
-from constants import PIN_SERVO_MAJOR,PIN_SERVO_MINOR, SERVO_MAX_DUTY, SERVO_MIN_DUTY, DELAY_CAM_CAPTURE, PARACHUTE_PIN,PARACHUTE_MAX_DUTY,PARACHUTE_MIN_DUTY
+from constants import PIN_SERVO_MAJOR,PIN_SERVO_MINOR, SERVO_MAX_DUTY, SERVO_MIN_DUTY, DELAY_CAM_CAPTURE, PARACHUTE_PIN
 from camera import Camera
 
 COUNTDOWN_SECONDS=15
@@ -12,7 +12,7 @@ curListIndex=0
 latList = [0]*listAverageSize
 longList = [0]*listAverageSize
 altList = [0]*listAverageSize
-# parachuteServo = Servo(PARACHUTE_PIN,)
+parachuteServo = Servo(PARACHUTE_PIN,(SERVO_MAX_DUTY + SERVO_MIN_DUTY)/2)
 servoPan = Servo(PIN_SERVO_MAJOR, (SERVO_MAX_DUTY + SERVO_MIN_DUTY)/2)
 servoTilt = Servo(PIN_SERVO_MINOR, (SERVO_MAX_DUTY + SERVO_MIN_DUTY)/2)
 dummyPan = Servo(23,(SERVO_MAX_DUTY + SERVO_MIN_DUTY)/2)
@@ -47,7 +47,8 @@ def processData():
 def getPositionData():
     return GPS.data_snapshot()
 def activateFailsafe():
-    #switch pin to on
+    
+
     print()
     print("  _|        _)  |                _|       ")
     print(" |     _` |  |  |   __|   _` |  |     _ \\ ")
