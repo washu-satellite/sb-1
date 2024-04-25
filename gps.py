@@ -28,12 +28,11 @@ class GPSController:
         if data[0:6] == b'$GPGGA':
             #changes that may or not may work, keeping the original code commented out below
             split_data = data.decode('utf-8').split(",")
-            lat=float(split_data[2])
-            long=float(split_data[4])
-            alt=float(split_data[9])
-            print("long: ")
-            print(long)
-            return lat,long,alt
+            if(split_data[2]!=""):
+                lat=float(split_data[2])
+                long=float(split_data[4])
+                alt=float(split_data[9])
+                return lat,long,alt
             #msg = pynmea2.parse(data)
             
             # return {"lat": msg.latitude, "lng": msg.longitude}

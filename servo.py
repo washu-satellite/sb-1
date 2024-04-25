@@ -13,13 +13,13 @@ class Servo:
 
     # Rotates camera viewport by 'angle' degrees
     def swivel(self, angle):
-        pwm = self.compute_delta(angle)
-        if pwm < SERVO_MIN_DUTY:
-            pwm = SERVO_MIN_DUTY
-        elif pwm > SERVO_MAX_DUTY:
-            pwm = SERVO_MAX_DUTY
-        
-        self.pin.ChangeDutyCycle(pwm)
+        self.pwm = self.compute_delta(angle)
+        if self.pwm < SERVO_MIN_DUTY:
+            self.pwm = SERVO_MIN_DUTY
+        elif self.pwm > SERVO_MAX_DUTY:
+            self.pwm = SERVO_MAX_DUTY
+        self.pin.ChangeDutyCycle(self.pwm)
+        return self.pwm/(SERVO_MAX_DUTY-SERVO_MIN_DUTY)*180-90
 
 
     def compute_delta(self, theta):
