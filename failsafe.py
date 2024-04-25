@@ -3,7 +3,8 @@ import sys
 import select
 from gps import GPSController
 from servo import Servo
-from constants import PIN_SERVO_MAJOR,PIN_SERVO_MINOR, SERVO_MAX_DUTY, SERVO_MIN_DUTY, DELAY_CAM_CAPTURE, PARACHUTE_PIN
+from hotWire import HotWire
+from constants import PIN_SERVO_MAJOR,PIN_SERVO_MINOR, SERVO_MAX_DUTY, SERVO_MIN_DUTY, DELAY_CAM_CAPTURE, PARACHUTE_PIN,FAILSAFE_PIN
 from camera import Camera
 
 COUNTDOWN_SECONDS=15
@@ -22,6 +23,7 @@ longVariance=.00067
 altVariance=150
 GPS= GPSController()
 cam = Camera()
+failsafeWire = HotWire(FAILSAFE_PIN)
 
 def initFailsafeCountdown():
     print()
@@ -47,13 +49,14 @@ def processData():
 def getPositionData():
     return GPS.data_snapshot()
 def activateFailsafe():
-    
-
     print()
     print("  _|        _)  |                _|       ")
     print(" |     _` |  |  |   __|   _` |  |     _ \\ ")
     print(" _|   (   |  |  | \__ \\  (   |  _|    __/ ")
     print("_|   \\__._| _| _| ____/ \\__._| _|   \\___|")
+    parachuteServo.swivel(-180)
+    time.sleep(1)
+    failsafeWire.activate()
 def failsafeCountdown(initTime):
     while True:
         elapsed_time = time.time() - initTime
